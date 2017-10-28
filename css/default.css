@@ -1,0 +1,57 @@
+.reveal .intro-footer {
+    font-size: 0.7em;
+    margin-top: 40%;
+}
+
+div .source {
+    font-size: 14px;
+    line-height: normal;
+}
+
+.reveal ul {
+    margin: 40px auto;
+    display: block;
+    width: 400px;
+}
+
+.reveal ul li {
+    margin-top: 20px;
+}
+
+.reveal section img {
+    border-width: 0;
+    box-shadow: none;
+    background-color: transparent;
+}
+
+.reveal section table {
+    float: left;
+    margin-right: 30px;
+}
+
+.reveal section table td {
+    border: 1px solid #999;
+    padding: 7px;
+}
+
+.reveal section .bg {
+    padding: 20px;
+    background-color: #ffffff;
+    opacity: 0.8;
+    border-radius: 20px;
+}
+
+.reveal div .left {
+    text-align: left;
+}
+
+body {
+    background: #add9e4;
+    background: -moz-radial-gradient(center, circle cover, #f7fbfc 0%, #add9e4 100%);
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, #f7fbfc), color-stop(100%, #add9e4));
+    background: -webkit-radial-gradient(center, circle cover, #f7fbfc 0%, #add9e4 100%);
+    background: -o-radial-gradient(center, circle cover, #f7fbfc 0%, #add9e4 100%);
+    background: -ms-radial-gradient(center, circle cover, #f7fbfc 0%, #add9e4 100%);
+    background: radial-gradient(center, circle cover, #f7fbfc 0%, #add9e4 100%);
+    background-color: #f7fbfc;
+}
