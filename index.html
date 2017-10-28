@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Mock Mock Mock</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="node_modules/reveal_js/css/reveal.css">
+    <link rel="stylesheet" href="node_modules/reveal_js/css/theme/simple.css" id="theme">
+    <link rel="stylesheet" href="css/default.css">
+    <link rel="stylesheet" href="node_modules/reveal_js/lib/css/zenburn.css">
+    <link rel="stylesheet" media="print" href="node_modules/reveal_js/css/print/pdf.css">
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section data-background="images/hen.jpg">
+            <div class="bg">
+                <h2>Mock Mock Mock</h2>
+                <h3>Mocking-Libraries</h3>
+            </div>
+        </section>
+
+        <section>
+            <img src="images/profile.jpg" alt="Claudio" style="float: right" width="300" height="384">
+            <div style="text-align: left">
+                Claudio Zizza<br><br>
+                Developer for > 15 years<br>
+                (Currently PHP)<br><br>
+                Co-Organizer PHP Usergroup Karlsruhe<br><br>
+                Part of Podcast: <a target="_blank" href="http://phpdevradio.de">phpdevradio.de</a><br>
+                PHP Snippets: <a target="_blank" href="http://php.budgegeria.de">php.budgegeria.de</a><br><br>
+                Twitter: <a target="_blank" href="https://twitter.com/senseexception">@SenseException</a>
+            </div>
+        </section>
+
+        <section>
+            <h2>Test your code!</h2>
+            <h3>(Duh!)</h3>
+        </section>
+
+        <section>
+            <h3>Tests & Dependencies</h3>
+            <div><img src="images/puzzle1.png"></div>
+        </section>
+
+        <section>
+            <h3>Dependencies</h3>
+            <div><img src="images/puzzle2.png"></div>
+            <div>I only want to test/run<br>this small part</div>
+        </section>
+
+        <section>
+            <h3>Test Doubles</h3>
+                <ul>
+                    <li>Dummies</li>
+                    <li>Stubs</li>
+                    <li>Mocks</li>
+                    <li>Spy</li>
+                </ul>
+            (We do only Mocks for now)
+            <aside class="notes">
+                Dummies: e.g. Logger. No return value, no execution, no invocation check
+                Stubs: No execution, no invocation check
+                Mocks: No execution
+            </aside>
+        </section>
+
+        <section>
+            <h3>Tests are Confusing at some point</h3>
+            <img src="images/hen3.png">
+        </section>
+
+        <section>
+            <h3>Your design influences your tests</h3>
+            <h3 class="fragment fade-in">Your tests influences your design</h3>
+            <aside class="notes">
+                We usually start testing on existing code, thinking that writing tests is hard
+                just because our code isn't well testable.
+                Depends what was first: Code (Legacy) or Tests (TDD). Chicken or Egg.
+            </aside>
+        </section>
+
+        <section>
+            <h3>PHPUnit</h3>
+            <aside class="notes">
+                MockObject can't be used without PHPUnit itself. Does Proxy mocks.
+                No static method call on instances.
+            </aside>
+        </section>
+
+        <section>
+            <h3>PHPUnit</h3>
+
+            <pre><code class="php">
+    &lt;?php
+
+    $mockFw = new PHPUnit_Framework_MockObject_Generator();
+
+    $math = $mockFw->createMock(MathInterface::class);
+
+    $math->expects(new PHPUnit_Framework_MockObject_Matcher_InvokedAtLeastOnce())
+        ->method('sum')
+        ->with(1, 1)
+        ->willReturn(2);
+
+    $math->__phpunit_verify();
+            </code></pre>
+        </section>
+
+        <section>
+            <h3>Prophecy</h3>
+            <aside class="notes">
+                Mocks result in failing tests on unexpected invocations
+            </aside>
+        </section>
+
+        <section>
+            <h3>Prophecy</h3>
+
+            <pre><code class="php">
+    &lt;?php
+
+    $mockFw = new Prophet();
+
+    $prophecy = $mockFw->prophesize(MathInterface::class);
+    $prophecy->sum(1, 1)
+        ->willReturn(2)
+        ->shouldBeCalledTimes(1);
+
+    $math = $prophecy->reveal();
+            </code></pre>
+        </section>
+
+        <section>
+            <h3>Mockery</h3>
+            <aside class="notes">
+                Static methods, Final classes
+            </aside>
+        </section>
+
+        <section>
+            <h3>Mockery</h3>
+
+            <pre><code class="php">
+    &lt;?php
+
+    $math = Mockery::mock(MathInterface::class);
+    $math->shouldReceive('sum')
+        ->once()
+        ->with(1, 1)
+        ->andReturn(2);
+
+    Mockery::close();
+            </code></pre>
+        </section>
+
+        <section>
+            <h3>vfsStream</h3>
+            <div>
+                <img src="images/hen2.png" class="fragment fade-in" style="position: relative; top: -150px; left: 300px">
+            </div>
+            <aside class="notes">
+                Create from existing directory structure,
+                Tests with huge files
+                SplFileInfo, SplFileObject and some functions don't work
+                Tests with FS Modes
+            </aside>
+        </section>
+
+        <section>
+            <h3>vfsStream</h3>
+
+            <pre><code class="php">
+    &lt;?php
+
+    baseDir = vfsStream::setup('dir');
+
+    mkdir(vfsStream::url('dir')  . '/' . 'myDir');
+            </code></pre>
+        </section>
+
+        <section>
+            <h3>bovigo/callmap</h3>
+            <aside class="notes">
+                Simple Map of methods possible
+                Return values from PHPDoc
+                Uses PHPUnit Exceptions in PHPUnit
+            </aside>
+        </section>
+
+        <section>
+            <h3>bovigo/callmap</h3>
+
+            <pre><code class="php">
+    &lt;?php
+
+    $math = NewInstance::of(MathInterface::class)
+        ->returns(['sum' => 2]);
+    // ...
+    verify($math, 'sum')->wasCalledOnce();
+            </code></pre>
+        </section>
+
+        <section>
+            <h3>Phake</h3>
+            <aside class="notes">
+                Stub of functions, enabling and disabling of stub possible. Allows Spys too.
+                Partial mocks possible. Can make visibility of partial mocks public.
+            </aside>
+        </section>
+
+        <section>
+            <h3>Phake</h3>
+
+            <pre><code class="php">
+    &lt;?php
+
+    $math = Phake::mock(MathInterface::class);
+    Phake::when($math)->sum(1, 1)->thenReturn(2);
+    // ...
+    Phake::verify($math, Phake::times(1))->sum(1, 1);
+            </code></pre>
+        </section>
+
+        <section>
+            <h3>PHP-Mock</h3>
+            <aside class="notes">
+            </aside>
+        </section>
+
+        <section>
+            <h3>PHP-Mock</h3>
+
+            <pre><code class="php">
+    &lt;?php
+
+    $builder = new MockBuilder();
+    $builder->setNamespace(__NAMESPACE__)
+        ->setName('time')
+        ->setFunction(function () {
+            return 0;
+        }
+    );
+    $stub = $builder->build();
+
+    $stub->enable();
+    time();
+            </code></pre>
+        </section>
+
+        <section>
+            <h3>AspectMock</h3>
+            <aside class="notes">
+                Stub of functions, Proxy mock, new Class mock, Static methods
+                Aspect Oriented Programming
+            </aside>
+        </section>
+
+        <section>
+            <h3>AspectMock</h3>
+
+            <pre><code class="php">
+    &lt;?php
+
+    $mathMock = Test::double(Math::class, ['sum' => 0]);
+
+    $math = new Math();
+    $testify->assertSame(0, $math->sum(1, 2));
+
+    $mathMock->verifyInvokedOnce('sum', [1, 2]);
+            </code></pre>
+        </section>
+
+        <section>
+            <h3>Let's mock mock mock:</h3>
+            <a href="https://github.com/SenseException/mock-mock-mock" target="_blank">https://github.com/SenseException/mock-mock-mock</a>
+        </section>
+
+        <section data-background="images/bg.jpg">
+            <div class="bg">
+                <h2>Thank you</h2>
+                Claudio Zizza<br>
+                <a href="http://php.budgegeria.de">php.budgegeria.de</a><br>
+                <a href="https://twitter.com/senseexception">@SenseException</a>
+            </div>
+        </section>
+    </div>
+</div>
+
+
+<script src="node_modules/reveal_js/js/reveal.js"></script>
+<script type="application/javascript">
+    Reveal.initialize({
+
+        center: true,
+
+        width: 1200,
+        height: 800,
+
+        minScale: 1.0,
+        maxScale: 10.0,
+
+        rollingLinks: true,
+        transition: 'linear' // default/cube/page/concave/zoom/linear/fade/none
+
+//        dependencies: [
+//            { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+//        ]
+    });
+</script>
+<script type="text/javascript" src="node_modules/reveal_js/plugin/highlight/highlight.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+</body>
+</html>
